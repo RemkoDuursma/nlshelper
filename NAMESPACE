@@ -2,3 +2,4 @@
 
 S3method(tidy,nlsList)
 export(anova_nlslist)
+export(plot_nls)
