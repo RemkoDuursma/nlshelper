@@ -6,7 +6,9 @@ Description: A few utilities for summarizing, testing, and plotting non-linear
     regression models fit with nls, nlsList or nlme.
 Depends:
     R (>= 3.3.2),
-    nlme
+    nlme,
+    broom,
+    dplyr
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
