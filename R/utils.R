@@ -1,4 +1,4 @@
-function (formula, ...)
+parse.formula <- function (formula, ...)
 {
   op <- formula[[1]]
   condition <- NULL
