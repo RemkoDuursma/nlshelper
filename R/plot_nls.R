@@ -10,11 +10,21 @@
 #'plot_nls(fit0)
 #'@export
 plot_nls <- function(object,
+                     col=NULL,
                      lines.col=palette(),
                      points.col=palette(),
+                     lwd=1,
+                     lty=1,
                      add=FALSE,
+                     xlab=NULL,
+                     ylab=NULL,
                      ...){
 
+  if(!is.null(col)){
+    lines.col <- col
+    points.col <- col
+  }
+  
   if(inherits(object, "nls")){
     pred <- predict_along(object)
     data <- get_data_nls(object)
@@ -23,10 +33,40 @@ plot_nls <- function(object,
     predvar <- intersect(all.names(pff$rhs), names(data))
     respvar <- as.character(pff$lhs)
 
-    if(!add)plot(data[,predvar], data[,respvar], col=points.col[1], ...)
-    with(pred, lines(predvar, fit, col=lines.col[1]))
+    if(is.null(xlab)) xlab <- predvar
+    if(is.null(ylab)) ylab <- respvar
+    
+    if(!add)plot(data[,predvar], data[,respvar], col=points.col[1], xlab=xlab, ylab=ylab, ...)
+    with(pred, lines(predvar, fit, col=lines.col[1], lwd=lwd, lty=lty))
   }
 
+  if(inherits(object, "nlsList")){
+    
+    pred <- predict_along_nlslist(object)
+    data <- get_data_nls(object)
+    
+    pff <- parse.formula(formula(object))
+    predvar <- intersect(all.names(pff$rhs), names(data))
+    respvar <- as.character(pff$lhs)
+    groupvar <- as.character(pff$condition)
+    ngroup <- length(unique(data[,groupvar]))
+    
+    if(is.null(xlab)) xlab <- predvar
+    if(is.null(ylab)) ylab <- respvar
+    
+    if(!add){
+      plot(data[,predvar], data[,respvar], 
+           col=points.col[as.factor(data[,groupvar])], 
+           xlab=xlab, ylab=ylab, ...)
+    }
+    for(i in seq_len(ngroup)){
+      with(pred[[i]], 
+           lines(predvar, fit, col=lines.col[i], lwd=lwd, lty=lty)
+      )
+    }
+  }
+  
+  
 
 }
 
@@ -52,14 +92,29 @@ predict_along <- function(object, n=101, ...){
   preddf <- data.frame(xv)
   names(preddf) <- predvar
   data.frame(predvar=xv, fit = predict(object, newdata=preddf, ...))
+
 }
 
-
-
-
-
-
-
+predict_along_nlslist <- function(object, n=101, ...){
+  
+  data <- get_data_nls(object)
+  pff <- parse.formula(formula(object))
+  predvar <- intersect(all.names(pff$rhs), names(data))
+  groupvar <- as.character(pff$condition)
+  
+  sp <- split(data, data[,groupvar])
+  
+  lapply(names(sp), function(x, ...){
+    
+    data <- sp[[x]]
+    xv <- seq(min(data[,predvar], na.rm=TRUE),
+              max(data[,predvar], na.rm=TRUE),
+              length=n)
+    preddf <- data.frame(xv)
+    names(preddf) <- predvar
+    data.frame(predvar=xv, fit = predict(object[[x]], newdata=preddf, ...))
+  })
+}
 
 
 
