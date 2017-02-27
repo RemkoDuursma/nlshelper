@@ -1,23 +1,28 @@
-#' Plot a non-linear regression model
+#' Plot a non-linear or non-parametric regression model
 #'
 #' Convenient function for adding curves to an existing plot, or to plot the data used in fitting with the curve overlaid. Works for simple non-linear regression models fit with \code{\link{nls}}, and grouped non-linear regression (with \code{\link{nlsList}}).
 #'@examples
 #'
 #'chick <- as.data.frame(ChickWeight)
 #'fit0 <- nls(weight ~ a*Time^b, data=chick, start=list(a=10, b=1.1))
-#'fit1 <- nlsList(weight ~ a*Time^b|Diet, data=chick, start=list(a=10, b=1.1))
-#'
 #'plot_nls(fit0)
+#'
+#'fit1 <- nlsList(weight ~ a*Time^b|Diet, data=chick, start=list(a=10, b=1.1))
+#'plot_nlslist(fit1)
+#'
 #'@export
+#'@rdname plot_nls
 plot_nls <- function(object,
                      col=NULL,
                      lines.col=palette(),
                      points.col=palette(),
+                     ci.col="#BEBEBEB3",
                      lwd=1,
                      lty=1,
                      add=FALSE,
                      xlab=NULL,
                      ylab=NULL,
+                     coverage=0.95,
                      ...){
 
   if(!is.null(col)){
@@ -25,9 +30,11 @@ plot_nls <- function(object,
     points.col <- col
   }
   
-  if(inherits(object, "nls")){
-    pred <- predict_along(object)
-    data <- get_data_nls(object)
+  if(inherits(object, "nls") | inherits(object, "loess")){
+    
+    pred <- predict_along(object, coverage=coverage)
+    
+    data <- get_data(object)
 
     pff <- parse.formula(formula(object))
     predvar <- intersect(all.names(pff$rhs), names(data))
@@ -36,14 +43,22 @@ plot_nls <- function(object,
     if(is.null(xlab)) xlab <- predvar
     if(is.null(ylab)) ylab <- respvar
     
+    
     if(!add)plot(data[,predvar], data[,respvar], col=points.col[1], xlab=xlab, ylab=ylab, ...)
+    
+    if(all(c("uci","lci") %in% names(x))){
+      with(pred, addpoly(predvar, lci, uci, col=ci.col))
+    }
+    
     with(pred, lines(predvar, fit, col=lines.col[1], lwd=lwd, lty=lty))
+    
+
   }
 
   if(inherits(object, "nlsList")){
     
     pred <- predict_along_nlslist(object)
-    data <- get_data_nls(object)
+    data <- get_data(object)
     
     pff <- parse.formula(formula(object))
     predvar <- intersect(all.names(pff$rhs), names(data))
@@ -71,16 +86,21 @@ plot_nls <- function(object,
 }
 
 
+#'@export
+#'@rdname plot_nls
+plot_loess <- function(object, ...)plot_nls(object, ...)
 
-get_data_nls <- function(x){
+
+# nls, nlsList, loess
+get_data <- function(x){
   eval(summary(x)$call$data, parent.frame())
 }
 
 
+# nls, loess
+predict_along <- function(object, n=101, coverage=0.95, ...){
 
-predict_along <- function(object, n=101, ...){
-
-  data <- get_data_nls(object)
+  data <- get_data(object)
   pff <- parse.formula(formula(object))
   predvar <- intersect(all.names(pff$rhs), names(data))
   if(length(predvar) > 1)stop("This only works for one predictor.")
@@ -91,13 +111,28 @@ predict_along <- function(object, n=101, ...){
 
   preddf <- data.frame(xv)
   names(preddf) <- predvar
-  data.frame(predvar=xv, fit = predict(object, newdata=preddf, ...))
+  
+  if(inherits(object, "nls")){
+    return(data.frame(predvar=xv, fit = predict(object, newdata=preddf, ...)))
+  }
+  if(inherits(object, "loess")){
+    
+    alpha <- 1 - coverage
+    qv <- coverage + alpha/2
+    
+    pred <- as.data.frame(predict(object, newdata=preddf, se=TRUE, ...))
+    pred$lci <- with(pred, fit - qt(qv, df)*se.fit)
+    pred$uci <- with(pred, fit + qt(qv, df)*se.fit)
+    pred <- cbind(predvar=xv, pred)
+    return(pred)
+  }
 
 }
 
+# nlsList
 predict_along_nlslist <- function(object, n=101, ...){
   
-  data <- get_data_nls(object)
+  data <- get_data(object)
   pff <- parse.formula(formula(object))
   predvar <- intersect(all.names(pff$rhs), names(data))
   groupvar <- as.character(pff$condition)
