@@ -19,10 +19,3 @@ add_regres_line <- function(fit, from=NULL, to=NULL, band=TRUE, bandcolor=alpha(
   
 }
 
-addpoly <- function(x,y1,y2,col=alpha("lightgrey",0.8),...){
-  ii <- order(x)
-  y1 <- y1[ii]
-  y2 <- y2[ii]
-  x <- x[ii]
-  polygon(c(x,rev(x)), c(y1, rev(y2)), col=col, border=NA,...)
-}
