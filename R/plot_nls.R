@@ -33,7 +33,6 @@ plot_nls <- function(object,
   if(inherits(object, "nls") | inherits(object, "loess")){
     
     pred <- predict_along(object, coverage=coverage)
-    
     data <- get_data(object)
 
     pff <- parse.formula(formula(object))
@@ -46,7 +45,7 @@ plot_nls <- function(object,
     
     if(!add)plot(data[,predvar], data[,respvar], col=points.col[1], xlab=xlab, ylab=ylab, ...)
     
-    if(all(c("uci","lci") %in% names(x))){
+    if(all(c("uci","lci") %in% names(pred))){
       with(pred, addpoly(predvar, lci, uci, col=ci.col))
     }
     
