@@ -15,6 +15,8 @@
 \item{conf.level}{The level of the confidence interval}
 
 \item{quick}{If TRUE, only returns the coefficients.}
+
+\item{\dots}{Further arguments passed to \code{\link{tidy}}}
 }
 \description{
 Adds a method to \code{\link{tidy}} (broom package), so that we can use it for models fitted with \code{\link{nlsList}}.
@@ -31,4 +33,3 @@ tidy(fit1)
 # ... and confidence intervals
 tidy(fit1, conf.int=TRUE)
 }
-

@@ -2,16 +2,38 @@
 % Please edit documentation in R/add_regres_line.R
 \name{add_regres_line}
 \alias{add_regres_line}
-\title{Add a regression line and confidence interval to a plot}
+\title{Add a regression line and confidence band to a plot}
 \usage{
 add_regres_line(fit, from = NULL, to = NULL, band = TRUE,
-  bandcolor = alpha("lightgrey", 0.8), ...)
+  ci.col = "#BEBEBEB3", ...)
+}
+\arguments{
+\item{fit}{Object returned by lm. Only models of the form \code{y ~ x} are supported, without expressions in \code{I()} (see Examples), or interactions, or multiple variables.}
+
+\item{from}{Optional (read from fitted model); Draw from this X value.}
+
+\item{to}{Optional (read from fitted model); Draw to this x value.}
+
+\item{band}{Logical. Whether to add a confidence band.}
+
+\item{ci.col}{Colour of the confidence band, if plotted. Defaults to a transparent grey colour.}
+
+\item{\dots}{Further arguments passed to \code{\link{abline_range}}}
 }
 \description{
-Add a regression line and confidence interval to a plot
+Plots a regression line from a simple linear model (of the form \code{lm(y ~ x)}) to a plot. Also plots the confidence band for the mean, which is calculated using \code{\link{predict.lm}}.
 }
 \examples{
-fit <- lm(height ~ age, data=Loblolly)
-with(Loblolly, plot(age, height, panel.first=add_regres_line(fit)))
-}
 
+#'Add a line across the range of the data from a regression object
+with(mtcars, plot(1/wt, mpg, xlim=c(0,0.8), ylim=c(0,40)))
+
+# add_regres_line does not allow I() expressions; yet.
+mtcars$inv_wt <- 1 / mtcars$wt
+fit <- lm(mpg ~ inv_wt, data=mtcars)
+add_regres_line(fit)
+
+# Add the regression line and confidence band behind the data
+fit <- lm(height ~ age, data=Loblolly)
+with(Loblolly, plot(age, height, pch=19, panel.first=add_regres_line(fit)))
+}

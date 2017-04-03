@@ -17,6 +17,11 @@
 #' # a grouping variable
 #' anova_nlslist(fit1, fit0)
 #'@export
+#'@importFrom nlme pooledSD
+#'@importFrom stats residuals
+#'@importFrom stats df.residual
+#'@importFrom stats pf
+#'@importFrom stats formula
 anova_nlslist <- function(nlsfull, nlsreduc){
 
   if(!inherits(nlsfull, "nlsList"))stop("First argument must be fit with nlsList.")

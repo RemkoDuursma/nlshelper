@@ -6,6 +6,7 @@
 #' @param conf.int Whether to calculate confidence intervals
 #' @param conf.level The level of the confidence interval
 #' @param quick If TRUE, only returns the coefficients.
+#' @param \dots Further arguments passed to \code{\link{tidy}}
 #' @examples
 #' chick <- as.data.frame(ChickWeight)
 #'
@@ -17,6 +18,8 @@
 #'
 #' # ... and confidence intervals
 #' tidy(fit1, conf.int=TRUE)
+#'@importFrom broom tidy
+#'@importFrom dplyr bind_rows
 #'@export
 tidy.nlsList <- function(x, conf.int = FALSE, conf.level = .95,
                          quick = FALSE, ...) {

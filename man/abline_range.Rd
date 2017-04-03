@@ -24,4 +24,18 @@ abline_range(a = NULL, b = NULL, reg = NULL, from = NULL, to = NULL,
 As \code{abline}, but with \code{from} and \code{to} arguments.
 If a fitted linear regression model is used as asn argument, it uses the min and max values of the data used to fit the model.
 }
+\examples{
 
+# Add a line manually
+with(mtcars, plot(1/wt, mpg, xlim=c(0,0.8), ylim=c(0,40)))
+abline_range(0,50,from=0.2, to=0.6)
+
+# Add a line across the range of the data from a regression object
+with(mtcars, plot(1/wt, mpg, xlim=c(0,0.8), ylim=c(0,40)))
+fit <- lm(mpg ~ I(1/wt), data=mtcars)
+abline_range(fit)
+
+}
+\seealso{
+See \code{\link{add_regres_line}} for adding a regression line with a confidence interval
+}
