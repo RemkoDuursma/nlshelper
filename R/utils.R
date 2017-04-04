@@ -1,5 +1,4 @@
-parse.formula <- function (formula, ...)
-{
+parse.formula <- function (formula, ...) {
   op <- formula[[1]]
   condition <- NULL
   if (length(formula) == 2) {
@@ -36,7 +35,7 @@ recycle <- function(x,n){
 }
 
 set_cols <- function(cols1, cols2, pal){
-  
+
   if(is.null(cols1))cols1 <- cols2
   if(is.null(cols2))cols2 <- cols1
   if(is.null(cols1) && is.null(cols2)){
@@ -53,16 +52,16 @@ fitgam <- function(X,Y,dfr, k=-1, R=NULL){
     dfr$R <- dfr[,R]
     model <- 2
   } else model <- 1
-  
+
   dfr <- droplevels(dfr, except=which(sapply(dfr, is.ordered)))
-  
+
   if(model ==1){
     g <- gam(Y ~ s(X, k=k), data=dfr)
   }
   if(model ==2){
     g <- gamm(Y ~ s(X, k=k), random = list(R=~1), data=dfr)
   }
-  
+
   return(g)
 }
 

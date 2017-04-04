@@ -39,3 +39,4 @@ abline_range(fit)
 \seealso{
 See \code{\link{add_regres_line}} for adding a regression line with a confidence interval
 }
+

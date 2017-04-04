@@ -27,3 +27,4 @@ fit1 <- nlsList(weight ~ a*Time^b | Diet, data=chick, start=list(a=10, b=1.1))
 # a grouping variable
 anova_nlslist(fit1, fit0)
 }
+
