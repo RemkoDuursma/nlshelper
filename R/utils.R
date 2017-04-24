@@ -20,7 +20,6 @@ parse.formula <- function (formula, ...) {
 list(op = op, lhs = lhs, rhs = rhs, condition = condition)
 }
 
-#'@importFrom graphics polygon
 addpoly <- function(x,y1,y2,col="#BEBEBEB3",...){
   ii <- order(x)
   y1 <- y1[ii]

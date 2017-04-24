@@ -68,4 +68,3 @@ plot_gam(age, height, Seed, data=Loblolly, band=FALSE, lines.col="black", fittyp
 data(ChickWeight)
 plot_gam(Time, weight, Diet, R="Chick", data=ChickWeight, lines.col=rainbow(4))
 }
-

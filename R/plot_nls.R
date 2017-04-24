@@ -1,8 +1,9 @@
 #' Plot a non-linear or non-parametric regression model
 #'
 #' Convenient function for adding curves to an existing plot, or to plot the data with the fitted curve.
-#' For non-linear regression plotting (\code{plot_nls}), works for simple non-linear regression models fit with \code{\link{nls}}, and grouped non-linear regression (with \code{\link{nlsList}}), in which case one fitted curve for each group is drawn on the same plot.
-#' For local regression models fitted with \code{loess}, use the \code{plot_loess} function which additionally adds a confidence interval around the fitted curve.
+#' For non-linear regression plotting (\code{plot_nls}), works for simple non-linear regression models fit with \code{\link{nls}}, grouped non-linear regression (with \code{\link{nlsList}}), and non-linear quantile regression fit with \code{\link{nlrq}} from the quantreg package.
+#' When plotting an \code{nlsList} object, \code{plot_nls} plots the fitted curve for each of the groups specified in the model, and sets colours with \code{lines.col} and \code{points.col} arguments.
+#' For local regression models fitted with \code{loess}, use the \code{plot_loess} function, which additionally adds a confidence interval around the fitted curve (unless \code{band=FALSE}).
 #' @param object The object returned by \code{nls}, \code{nlsList} or \code{loess}
 #' @param col Colour to be used for the data symbols and the fitted line, unless \code{lines.col} and \code{points.col} are provided
 #' @param band For \code{plot_loess}, whether to add a confidence band. Not yet implemented for \code{plot_nls}
@@ -39,6 +40,7 @@
 #'  panel.first=plot_loess(l, plotdata=FALSE)))
 #'
 #'@export
+#'@importFrom graphics polygon
 #'@rdname plot_nls
 plot_nls <- function(object,
                      col=NULL,
@@ -62,7 +64,7 @@ plot_nls <- function(object,
 
   type <- if(!plotdata)'n' else 'p'
 
-  if(inherits(object, "nls") | inherits(object, "loess")){
+  if(inherits(object, "nls") | inherits(object, "loess") | inherits(object, "nlrq")){
 
     pred <- predict_along(object, coverage=coverage)
     data <- get_data(object)
@@ -145,7 +147,7 @@ predict_along <- function(object, n=101, coverage=0.95, ...){
   preddf <- data.frame(xv)
   names(preddf) <- predvar
 
-  if(inherits(object, "nls")){
+  if(inherits(object, "nls") | inherits(object, "nlrq")){
     return(data.frame(predvar=xv, fit = predict(object, newdata=preddf, ...)))
   }
   if(inherits(object, "loess")){

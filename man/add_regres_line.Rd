@@ -37,4 +37,3 @@ add_regres_line(fit)
 fit <- lm(height ~ age, data=Loblolly)
 with(Loblolly, plot(age, height, pch=19, panel.first=add_regres_line(fit)))
 }
-

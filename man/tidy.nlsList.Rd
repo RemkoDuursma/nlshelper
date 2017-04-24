@@ -33,4 +33,3 @@ tidy(fit1)
 # ... and confidence intervals
 tidy(fit1, conf.int=TRUE)
 }
-
