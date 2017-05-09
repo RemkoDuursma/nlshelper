@@ -6,9 +6,9 @@
 \title{Plot a non-linear or non-parametric regression model}
 \usage{
 plot_nls(object, col = NULL, band = TRUE, plotdata = TRUE,
-  lines.col = palette(), points.col = palette(), ci.col = "#BEBEBEB3",
-  lwd = 1, lty = 1, add = FALSE, xlab = NULL, ylab = NULL,
-  coverage = 0.95, ...)
+  extrapolate = FALSE, lines.col = palette(), points.col = palette(),
+  ci.col = "#BEBEBEB3", lwd = 1, lty = 1, add = FALSE, xlab = NULL,
+  ylab = NULL, coverage = 0.95, xlim = NULL, ...)
 
 plot_loess(object, ...)
 }
@@ -20,6 +20,8 @@ plot_loess(object, ...)
 \item{band}{For \code{plot_loess}, whether to add a confidence band. Not yet implemented for \code{plot_nls}}
 
 \item{plotdata}{Logical. Whether to add the data points to the plot.}
+
+\item{extrapolate}{Logical (default FALSE). If TRUE, extends the fitted curve beyond the data, based on the x-axis limits specified.}
 
 \item{lines.col}{Colour(s) for the fitted lines. When plotting a \code{nlsList} object, can be a vector that represents colours for each group.}
 
@@ -38,6 +40,8 @@ plot_loess(object, ...)
 \item{ylab}{Label for y-axis}
 
 \item{coverage}{If confidence band to be plotted, the coverage (e.g. for 95\% confidence interval, use 0.95)}
+
+\item{xlim}{X-axis limits (optional).}
 
 \item{\dots}{Further arguments passed to \code{\link{plot}}}
 }

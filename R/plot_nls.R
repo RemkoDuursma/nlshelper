@@ -8,6 +8,7 @@
 #' @param col Colour to be used for the data symbols and the fitted line, unless \code{lines.col} and \code{points.col} are provided
 #' @param band For \code{plot_loess}, whether to add a confidence band. Not yet implemented for \code{plot_nls}
 #' @param plotdata Logical. Whether to add the data points to the plot.
+#' @param extrapolate Logical (default FALSE). If TRUE, extends the fitted curve beyond the data, based on the x-axis limits specified.
 #' @param lines.col Colour(s) for the fitted lines. When plotting a \code{nlsList} object, can be a vector that represents colours for each group.
 #' @param points.col Colour(s) for the data symbols. When plotting a \code{nlsList} object, can be a vector that represents colours for each group.
 #' @param ci.col Colour of the confidence band, if plotted. Defaults to a transparent grey colour.
@@ -17,6 +18,7 @@
 #' @param xlab Label for x-axis
 #' @param ylab Label for y-axis
 #' @param coverage If confidence band to be plotted, the coverage (e.g. for 95\% confidence interval, use 0.95)
+#' @param xlim X-axis limits (optional).
 #' @param \dots Further arguments passed to \code{\link{plot}}
 #' @return Returns the predicted values used in plotting (invisibly), as a dataframe with columns 'predvar' (regularly spaced predictor values), and 'fit' (fitted values). For \code{plot_loess} also returns confidence intervals, standard error, and df of the residual.
 #'@examples
@@ -46,6 +48,7 @@ plot_nls <- function(object,
                      col=NULL,
                      band=TRUE,
                      plotdata=TRUE,
+                     extrapolate=FALSE,
                      lines.col=palette(),
                      points.col=palette(),
                      ci.col="#BEBEBEB3",
@@ -55,6 +58,7 @@ plot_nls <- function(object,
                      xlab=NULL,
                      ylab=NULL,
                      coverage=0.95,
+                     xlim=NULL,
                      ...){
 
   if(!is.null(col)){
@@ -66,7 +70,9 @@ plot_nls <- function(object,
 
   if(inherits(object, "nls") | inherits(object, "loess") | inherits(object, "nlrq")){
 
-    pred <- predict_along(object, coverage=coverage)
+
+    pred <- predict_along(object, coverage=coverage,
+                          xlim=if(extrapolate)xlim else NULL)
     data <- get_data(object)
 
     pff <- parse.formula(formula(object))
@@ -78,7 +84,7 @@ plot_nls <- function(object,
 
     if(!add)plot(data[,predvar], data[,respvar], col=points.col[1],
                  type=type,
-                 xlab=xlab, ylab=ylab, ...)
+                 xlab=xlab, ylab=ylab, xlim=xlim, ...)
 
     if(band && all(c("uci","lci") %in% names(pred))){
       with(pred, addpoly(predvar, lci, uci, col=ci.col))
@@ -91,7 +97,7 @@ plot_nls <- function(object,
 
   if(inherits(object, "nlsList")){
 
-    pred <- predict_along_nlslist(object)
+    pred <- predict_along_nlslist(object, xlim=if(extrapolate)xlim else NULL)
     data <- get_data(object)
 
     pff <- parse.formula(formula(object))
@@ -133,16 +139,19 @@ get_data <- function(x){
 
 
 # nls, loess
-predict_along <- function(object, n=101, coverage=0.95, ...){
+predict_along <- function(object, n=101, coverage=0.95, xlim=NULL, ...){
 
   data <- get_data(object)
   pff <- parse.formula(formula(object))
   predvar <- intersect(all.names(pff$rhs), names(data))
   if(length(predvar) > 1)stop("This only works for one predictor.")
 
-  xv <- seq(min(data[,predvar], na.rm=TRUE),
-            max(data[,predvar], na.rm=TRUE),
-            length=n)
+  if(is.null(xlim)){
+    xlim <- c(min(data[,predvar], na.rm=TRUE),
+              max(data[,predvar], na.rm=TRUE))
+  }
+
+  xv <- seq(xlim[1], xlim[2], length=n)
 
   preddf <- data.frame(xv)
   names(preddf) <- predvar
@@ -165,7 +174,7 @@ predict_along <- function(object, n=101, coverage=0.95, ...){
 }
 
 # nlsList
-predict_along_nlslist <- function(object, n=101, ...){
+predict_along_nlslist <- function(object, n=101, xlim=NULL, ...){
 
   data <- get_data(object)
   pff <- parse.formula(formula(object))
@@ -177,9 +186,13 @@ predict_along_nlslist <- function(object, n=101, ...){
   lapply(names(sp), function(x, ...){
 
     data <- sp[[x]]
-    xv <- seq(min(data[,predvar], na.rm=TRUE),
-              max(data[,predvar], na.rm=TRUE),
-              length=n)
+    if(is.null(xlim)){
+      xlim <- c(min(data[,predvar], na.rm=TRUE),
+                 max(data[,predvar], na.rm=TRUE))
+    }
+
+    xv <- seq(xlim[1], xlim[2], length=n)
+
     preddf <- data.frame(xv)
     names(preddf) <- predvar
     data.frame(predvar=xv, fit = predict(object[[x]], newdata=preddf, ...))
