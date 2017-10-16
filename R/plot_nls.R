@@ -68,8 +68,7 @@ plot_nls <- function(object,
 
   type <- if(!plotdata)'n' else 'p'
 
-  if(inherits(object, "nls") | inherits(object, "loess") | inherits(object, "nlrq")){
-
+  if(inherits(object, c("nls","loess","nlrq"))){
 
     pred <- predict_along(object, coverage=coverage,
                           xlim=if(extrapolate)xlim else NULL)

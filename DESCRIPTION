@@ -3,7 +3,7 @@ Title: Convenient Functions for Non-Linear Regression
 Version: 0.2-2
 Authors@R: person("Remko", "Duursma", email = "remkoduursma@gmail.com", role = c("aut", "cre"))
 Description: A few utilities for summarizing, testing, and plotting non-linear
-    regression models fit with nls(), nlsList() or nlme().
+    regression models fit with nls, nlsList, nlme, loess, rq and nlrq.
 Depends:
     nlme,
     broom,
