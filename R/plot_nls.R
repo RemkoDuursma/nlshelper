@@ -133,7 +133,7 @@ plot_loess <- function(object, ...)plot_nls(object, ...)
 
 # nls, nlsList, loess
 get_data <- function(x){
-  eval(summary(x)$call$data, parent.frame())
+  as.data.frame(eval(summary(x)$call$data, parent.frame()))
 }
 
 
